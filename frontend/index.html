@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PulseSense — Live Health Dashboard</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>PulseSense</h1>
+      <p>Real-time health sensor dashboard (FHIR + D3)</p>
+      <div class="row">
+        <div class="pill">Backend: <span id="backendUrl"></span></div>
+        <div class="pill">WS: <span id="wsStatus">disconnected</span></div>
+        <div class="pill">Last update: <span id="lastUpdate">—</span></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="grid">
+      <div class="card">
+        <h2>Heart Rate (beats/min)</h2>
+        <div id="chart-hr" class="chart"></div>
+      </div>
+      <div class="card">
+        <h2>Temperature (°C)</h2>
+        <div id="chart-temp" class="chart"></div>
+      </div>
+      <div class="card">
+        <h2>Steps / min</h2>
+        <div id="chart-steps" class="chart"></div>
+      </div>
+      <div class="card">
+        <h2>Status</h2>
+        <div id="statusPanel" class="status">
+          <div class="status-line"><span>Heart Rate:</span> <b id="statusHr">—</b></div>
+          <div class="status-line"><span>Temp:</span> <b id="statusTemp">—</b></div>
+          <div class="status-line"><span>Steps:</span> <b id="statusSteps">—</b></div>
+          <hr/>
+          <p class="muted">
+            Data comes from <code>/ws/live</code> (live) and is shaped like a FHIR Observation.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>FHIR Stream (latest 5 messages)</h2>
+      <pre id="log" class="log"></pre>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

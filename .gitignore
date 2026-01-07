@@ -1,0 +1,12 @@
+# Rust build output
+target/
+backend/target/
+
+# Windows debug symbols
+*.pdb
+
+# Env / editor
+.env
+.vscode/
+.DS_Store
+Thumbs.db
