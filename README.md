@@ -14,7 +14,7 @@ This starter repo matches the INCO (Innovation & Complexity Management) required
 ```bash
 cd backend
 cp .env.example .env
-cargo run
+cargo run --bin pulsesense-backend
 ```
 
 Backend runs on: http://127.0.0.1:8080
