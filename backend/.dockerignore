@@ -1,0 +1,15 @@
+# Rust build output
+target/
+
+# Git
+.git
+.gitignore
+
+# Env / editor
+.env
+.env.*
+.vscode/
+.DS_Store
+
+# Logs
+*.log

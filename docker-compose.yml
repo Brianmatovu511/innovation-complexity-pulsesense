@@ -1,7 +1,51 @@
 services:
   backend:
-    build: ./backend
+    container_name: pulsesense-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     env_file:
-      - ./backend/.env.example
+      - ./backend/.env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8080
+    restart: unless-stopped
+    stop_grace_period: 10s
+    healthcheck:
+      # Uses curl (we will add curl in Dockerfile runtime stage)
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/healthz >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  frontend:
+    container_name: pulsesense-frontend
+    image: nginx:alpine
+    ports:
+      - "5173:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    stop_grace_period: 5s
+
+  simulator:
+    container_name: pulsesense-simulator
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      BASE_URL: http://backend:8080
+      # INGEST_TOKEN: your-token
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    stop_grace_period: 5s
+    # small delay just to avoid race conditions on first boot
+    command: ["sh", "-lc", "sleep 1 && /usr/local/bin/simulator"]

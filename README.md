@@ -1,74 +1,110 @@
 # PulseSense — Real-Time Health Sensor Dashboard (FHIR + D3)
 
-This starter repo matches the INCO (Innovation & Complexity Management) required structure:
-- Rust **Actix Web** backend
-- **WebSocket** real-time stream
-- Backend emits **FHIR-like Observation JSON**
-- Frontend uses **D3.js** and updates live
-- Docker + docker-compose
-- GitHub Actions CI (build + test)
+PulseSense is a containerized, real-time health monitoring demo that streams simulated physiological sensor data to a live web dashboard.  
+It demonstrates modern backend architecture, real-time communication, and **FHIR-aligned healthcare data modeling**.
 
-## Quick start (dev)
+This project was built to satisfy the **Innovation & Complexity Management** course requirements and to serve as a solid technical portfolio example.
 
-### 1) Backend
+---
+
+## ✨ Key Features
+
+- 🦀 **Rust + Actix Web** backend  
+- 🔁 **WebSocket** real-time data streaming  
+- 🏥 **FHIR-compliant Observation JSON (FHIR R4–style)**  
+- 📊 **D3.js** live data visualization  
+- 🤖 Built-in **sensor simulator**  
+- 🐳 Fully **Dockerized** (backend, frontend, simulator)  
+- ⚕️ Health-checked service orchestration with Docker Compose  
+
+---
+
+## 🏥 FHIR Compliance (Overview)
+
+PulseSense emits data modeled after **HL7 FHIR Observation resources**.
+
+Each measurement follows the FHIR Observation structure, including:
+
+- `resourceType: Observation`
+- `status`
+- `code` (heart rate, body temperature, steps/min)
+- `subject` (patient reference)
+- `device`
+- `effectiveDateTime`
+- `valueQuantity`
+
+FHIR-like Observations are available via:
+
+- REST API (`/fhir/Observation`)
+- Live WebSocket stream (`/ws/live`)
+
+This makes PulseSense suitable for **health informatics demonstrations** and future interoperability extensions.
+
+---
+
+## 🚀 One-Command Quick Start (Recommended)
+
+### Requirements
+- Docker
+- Docker Compose
+
+### Run everything (backend + frontend + simulator)
+
 ```bash
-cd backend
-cp .env.example .env
-cargo run --bin pulsesense-backend
+docker compose up --build
 ```
 
-Backend runs on: http://127.0.0.1:8080
+Then open:
 
-### 2) Frontend
-Open `frontend/index.html` in a browser (or serve it):
-```bash
-cd frontend
-python -m http.server 5173
+- **Frontend Dashboard:** http://127.0.0.1:5173  
+- **Backend Health Check:** http://127.0.0.1:8080/healthz  
+
+✔ Backend, frontend, and simulator start automatically  
+✔ Live charts update in real time  
+
+---
+
+## 🧠 Architecture Overview
+
+```text
+┌──────────────┐
+│  Simulator   │
+│ (Rust binary)│
+└──────┬───────┘
+       │ HTTP /ingest
+       ▼
+┌─────────────────────────┐
+│  Backend (Actix Web)    │
+│                         │
+│ - REST API              │
+│ - FHIR Observation map  │
+│ - WebSocket /ws/live    │
+│ - In-memory store       │
+└──────┬─────────┬────────┘
+       │ WS       │ REST
+       ▼          ▼
+┌─────────────────────────┐
+│ Frontend (Nginx + D3)   │
+│                         │
+│ - Live charts           │
+│ - Status indicators     │
+│ - FHIR stream view      │
+└─────────────────────────┘
 ```
-Then open: http://127.0.0.1:5173
 
-### 3) Simulate sensor data
-In a second terminal:
-```bash
-cd backend
-cargo run --bin simulator
-```
+---
 
-## API
-- `POST /ingest` ingest a reading
-- `GET /fhir/Observation?code=heart-rate&limit=100` query recent observations (FHIR Bundle)
-- `GET /healthz` health check
-- `GET /ws/live` websocket stream of new observations
+## 🔌 API Endpoints
 
-## Notes
+- `POST /ingest` — ingest a sensor reading  
+- `GET /fhir/Observation?code=heart-rate&limit=100` — query recent observations  
+- `GET /healthz` — backend health check  
+- `GET /ws/live` — WebSocket stream of new observations  
 
-This repository is intentionally small but structured so it can grow without becoming messy.  
-It already includes:
+---
 
-- a simple domain model for sensor readings
-- input validation at ingestion time
-- mapping readings to a FHIR-like Observation format
-- centralized error handling
-- basic telemetry/logging setup
-- a live WebSocket stream for the dashboard
+## 👤 Author
 
-## Next steps
-
-1. **Confirm the final signals**
-   - Keep 3–5 signals (e.g., Heart Rate, Temperature, Steps/min, SpO₂, Battery).
-
-2. **Connect a real data source**
-   - Replace the simulator with a real sensor feed (or a CSV/serial/BLE source).
-   - Ensure the payload format stays consistent with the backend ingest endpoint.
-
-3. **Add persistence**
-   - Store readings in SQLite/Postgres (and keep the in-memory mode for quick demos).
-   - Add query filters (by patient/device, time range, and signal type).
-
-4. **Improve security**
-   - Add authentication (simple token/JWT).
-   - Restrict access per user/device if needed.
-
-5. **Testing + reliability**
-   - Add integration tests for ingest, FHIR output, and WebSocket streaming.
-   - Add basic rate limiting and better validation messages.
+**Brian Doctor**  
+Health Informatics (B.Sc.)  
+INCO — Innovation & Complexity Management
