@@ -6,17 +6,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
-
-    # Load env file if present (recommended to create it from .env.example)
-    env_file:
-      - ./backend/.env
-
-    # Safe defaults so a fresh clone still runs
     environment:
       HOST: ${HOST:-0.0.0.0}
       PORT: ${PORT:-8080}
       INGEST_TOKEN: ${INGEST_TOKEN:-}
-
+      RUST_LOG: ${RUST_LOG:-info}
     restart: unless-stopped
     stop_grace_period: 10s
     healthcheck:
@@ -46,7 +40,6 @@ services:
     command: ["/usr/local/bin/simulator"]
     environment:
       BASE_URL: http://backend:8080
-      # If backend uses a token, set the same here:
       INGEST_TOKEN: ${INGEST_TOKEN:-}
     depends_on:
       backend:
