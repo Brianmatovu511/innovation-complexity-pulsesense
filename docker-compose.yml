@@ -6,16 +6,21 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+
+    # Load env file if present (recommended to create it from .env.example)
     env_file:
       - ./backend/.env
+
+    # Safe defaults so a fresh clone still runs
     environment:
-      HOST: 0.0.0.0
-      PORT: 8080
+      HOST: ${HOST:-0.0.0.0}
+      PORT: ${PORT:-8080}
+      INGEST_TOKEN: ${INGEST_TOKEN:-}
+
     restart: unless-stopped
     stop_grace_period: 10s
     healthcheck:
-      # Uses curl (we will add curl in Dockerfile runtime stage)
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/healthz >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz >/dev/null 2>&1 || exit 1"]
       interval: 10s
       timeout: 3s
       retries: 10
@@ -29,8 +34,7 @@ services:
     volumes:
       - ./frontend:/usr/share/nginx/html:ro
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     restart: unless-stopped
     stop_grace_period: 5s
 
@@ -39,13 +43,14 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    command: ["/usr/local/bin/simulator"]
     environment:
       BASE_URL: http://backend:8080
-      # INGEST_TOKEN: your-token
+      # If backend uses a token, set the same here:
+      INGEST_TOKEN: ${INGEST_TOKEN:-}
     depends_on:
       backend:
         condition: service_healthy
     restart: unless-stopped
     stop_grace_period: 5s
-    # small delay just to avoid race conditions on first boot
-    command: ["sh", "-lc", "sleep 1 && /usr/local/bin/simulator"]
+    profiles: ["sim"]
